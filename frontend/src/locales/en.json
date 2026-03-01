@@ -1,0 +1,160 @@
+{
+    "common": {
+        "brand": "AgriPulse",
+        "status_online": "SYSTEM ONLINE",
+        "status_offline": "SYSTEM OFFLINE",
+        "logout": "Terminate Session",
+        "profile": "Operator Profile",
+        "settings": "Global Settings",
+        "verified": "Operator Verified",
+        "status": "Status",
+        "save_changes": "Save Changes"
+    },
+    "nav": {
+        "overview": "Overview",
+        "dashboard": "Dashboard",
+        "disease": "Scanner",
+        "scanner": "Scanner",
+        "irrigation": "Smart Irrigation",
+        "reports": "Field Reports",
+        "profile": "Operator Profile",
+        "settings": "Global Settings"
+    },
+    "dashboard": {
+        "title": "Farm Overview",
+        "subtitle": "Real-time status of your agricultural assets.",
+        "tactical_report": "Tactical Report",
+        "kpi": {
+            "humidity": "Humidity",
+            "temp": "Ambient Temp",
+            "soil_moisture": "Soil Moisture",
+            "water_tank": "Water Tank",
+            "system_status": "System Status"
+        },
+        "weather": {
+            "title": "Local Weather",
+            "live_update": "Live Update",
+            "temp": "Temperature",
+            "humidity": "Humidity",
+            "wind": "Wind Speed",
+            "precipitation": "Precipitation Chance",
+            "low_prob": "Low probability next 6h"
+        },
+        "vitality": {
+            "title": "Crop Vitality",
+            "recommendation": "AI Recommendation",
+            "recommendation_msg": "Proceed with scheduled irrigation cycle at 18:00. Soil moisture in Block B is trending slightly low.",
+            "heatmap_title": "Moisture Heat Map preview",
+            "heatmap_low": "Low",
+            "heatmap_optimum": "Optimum",
+            "btn_analytics": "Open Advanced Analytics",
+            "good": "GOOD",
+            "warning": "WARNING",
+            "critical": "CRITICAL"
+        },
+        "activity": {
+            "title": "Field Activity Log",
+            "sunny": "Sunny",
+            "last_24h": "Last 24 Hours",
+            "last_7d": "Last 7 Days",
+            "event_system": "System Event",
+            "event_ai": "AI Event",
+            "event_alert": "Alert Event"
+        },
+        "irrigation": {
+            "title": "Irrigation Node Control",
+            "mode_auto": "Autonomous",
+            "mode_manual": "Manual",
+            "active_zone": "Selected Sector",
+            "zone": "Sector",
+            "status_irrigating": "Active Distribution",
+            "status_idle": "System Standby",
+            "daily_usage": "24h Volume Consumption"
+        }
+    },
+    "reports": {
+        "title": "Field Reports",
+        "subtitle": "Comprehensive data exports and analytical summaries.",
+        "btn_csv": "Export CSV",
+        "btn_pdf": "Export PDF",
+        "recent_title": "Recent Reports",
+        "view_all": "View Full Archive"
+    },
+    "scanner": {
+        "title": "Diagnostic Scanner",
+        "subtitle": "Upload or capture a leaf photo to identify diseases.",
+        "btn_scan": "Begin New Scan",
+        "btn_analyzing": "Analyzing Pathology...",
+        "output": "Analysis Output",
+        "ready": "Captured Image Ready",
+        "verified": "VERIFIED",
+        "protocol": "Recommended Protocol",
+        "risk_level": "Risk Level",
+        "response": "Response"
+    },
+    "irrigation": {
+        "title": "Hydration Matrix",
+        "subtitle": "Smart Irrigation Control",
+        "moisture_cap": "Soil Moisture Cap",
+        "ambient_thermal": "Ambient Thermal",
+        "crop_class": "Crop Classification",
+        "stats": {
+            "usage": "Total Water Usage",
+            "health": "Avg Soil Health",
+            "alerts": "Active Alerts"
+        },
+        "control": {
+            "title": "Irrigation Management",
+            "active_zone": "Active Farm Zone",
+            "auto_mode": "Autonomous Mode",
+            "auto_desc": "AI-driven optimization active",
+            "auto_protocols": "AI handling protocols",
+            "btn_engage": "Engage",
+            "btn_terminate": "Terminate",
+            "flow_rate": "Water Flow Rate",
+            "usage_title": "Session Usage",
+            "gallons": "Gallons",
+            "load_status": "Load Status",
+            "active_flow": "Active Flow",
+            "standby": "On Standby",
+            "zones": {
+                "north": "Sector 7 (North)",
+                "east": "Sector 4-A (East)",
+                "greenhouse": "Greenhouse B",
+                "orchard": "Orchard 2"
+            }
+        }
+    },
+    "profile": {
+        "title": "Enterprise Account",
+        "subtitle": "Institutional profile and security hierarchy management.",
+        "modify": "Modify Credentials",
+        "cancel": "Cancel Changes",
+        "commit": "Commit Updates",
+        "personal_info": "Personal Information",
+        "id": "Operator ID",
+        "tier": "Access Tier",
+        "tier_value": "Enterprise Pro",
+        "security_logs": "Security & Access Logs",
+        "export": "Export Audit Trail",
+        "verified_assets": "Verified Assets",
+        "field_name": "Full Legal Name",
+        "field_email": "Enterprise Email",
+        "field_role": "Operational Role",
+        "field_timezone": "Time Zone"
+    },
+    "settings": {
+        "title": "Global Settings",
+        "subtitle": "Institutional configuration for theme, language, and operational protocols.",
+        "theme_title": "Theme Settings",
+        "theme_desc": "Customize your visual experience and power consumption.",
+        "lang_title": "Language Settings",
+        "lang_desc": "Select your preferred language for the interface.",
+        "notif_title": "Notification Preferences",
+        "notif_desc": "Managed how you receive alerts and system updates.",
+        "sec_title": "Account Security",
+        "sec_desc": "Secure your account with multi-factor authentication.",
+        "farm_title": "Farm Configuration",
+        "farm_desc": "Define your agricultural parameters and operational boundaries."
+    }
+}

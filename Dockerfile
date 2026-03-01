@@ -1,0 +1,25 @@
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_DEBUG=0
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for caching
+COPY requirements.txt .
+
+# Install dependencies without cache
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the project
+COPY . .
+
+# Expose port 8080 (clean and standard for many cloud platforms)
+EXPOSE 8080
+
+# Run the app using gunicorn with gevent for WebSocket support
+# Bind to the dynamic PORT provided by platforms like Railway, default to 8080
+CMD ["sh", "-c", "gunicorn -w 4 -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -b 0.0.0.0:${PORT:-8080} run:app"]

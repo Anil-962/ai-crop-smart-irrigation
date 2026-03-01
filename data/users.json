@@ -1,0 +1,26 @@
+{
+    "persist@example.com": {
+        "id": "8522269c-2525-476a-a40d-9895555ffc8c",
+        "email": "persist@example.com",
+        "password": "securepassword",
+        "name": "Persistent User"
+    },
+    "anilkumargr27@gmail.com": {
+        "id": "9cdf8da5-b1b8-43a3-9d66-52a606673cc1",
+        "email": "anilkumargr27@gmail.com",
+        "password": "Anianil@1434",
+        "name": "Anil"
+    },
+    "operator@agroguard.tech": {
+        "id": "4cd2eaf2-0fd3-4924-843a-5aad3c5b1a53",
+        "email": "operator@agroguard.tech",
+        "password": "password123password123",
+        "name": "operator"
+    },
+    "test@example.comadmin@agroguard.com": {
+        "id": "826bc0fc-35b1-41bf-a0f9-d0bd9a996a62",
+        "email": "test@example.comadmin@agroguard.com",
+        "password": "password",
+        "name": "Test Admin"
+    }
+}

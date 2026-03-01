@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: agroguard-db
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - agroguard-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agroguard-backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./models:/app/models
+    networks:
+      - agroguard-network
+
+networks:
+  agroguard-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

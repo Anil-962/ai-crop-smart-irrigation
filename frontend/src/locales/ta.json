@@ -1,0 +1,45 @@
+{
+    "common": {
+        "brand": "AgriPulse",
+        "status_online": "சிஸ்டம் ஆன்லைன்",
+        "status_offline": "சிஸ்டம் ஆஃப்லைன்",
+        "logout": "அமர்வை முடி",
+        "profile": "ஆபரேட்டர் சுயவிவரம்",
+        "settings": "உலகளாவிய அமைப்புகள்",
+        "status": "நிலை"
+    },
+    "nav": {
+        "overview": "கண்ணோட்டம்",
+        "dashboard": "டாஷ்போர்டு",
+        "disease": "ஸ்கேனர்",
+        "scanner": "ஸ்கேனர்",
+        "irrigation": "ஸ்மார்ட் பாசனம்",
+        "reports": "கள அறிக்கைகள்"
+    },
+    "dashboard": {
+        "title": "பண்ணை கண்ணோட்டம்",
+        "kpi": {
+            "humidity": "ஈரப்பதம்",
+            "temp": "வெப்பநிலை",
+            "soil_moisture": "மண் ஈரப்பதம்",
+            "water_tank": "தண்ணீர் தொட்டி",
+            "system_status": "சிஸ்டம் நிலை"
+        },
+        "vitality": {
+            "good": "நல்லது",
+            "warning": "எச்சரிக்கை",
+            "critical": "முக்கியமானது"
+        }
+    },
+    "irrigation": {
+        "control": {
+            "title": "பாசன மேலாண்மை",
+            "auto_mode": "தன்னாட்சி முறை",
+            "auto_protocols": "AI நெறிமுறைகள்",
+            "btn_engage": "தொடங்கு",
+            "btn_terminate": "முடி",
+            "active_flow": "செயலில் உள்ள ஓட்டம்",
+            "standby": "காத்திருப்பில்"
+        }
+    }
+}

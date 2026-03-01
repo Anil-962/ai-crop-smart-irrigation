@@ -1,0 +1,45 @@
+{
+    "common": {
+        "brand": "AgriPulse",
+        "status_online": "సిస్టమ్ ఆన్‌లైన్",
+        "status_offline": "సిస్టమ్ ఆఫ్-లైన్",
+        "logout": "సెషన్ ముగించు",
+        "profile": "ఆపరేటర్ ప్రొఫైల్",
+        "settings": "గ్లోబల్ సెట్టింగ్స్",
+        "status": "స్థితి"
+    },
+    "nav": {
+        "overview": "అవలోకనం",
+        "dashboard": "డ్యాష్‌బోర్డ్",
+        "disease": "స్కానర్",
+        "scanner": "స్కానర్",
+        "irrigation": "స్మార్ట్ నీటిపారుదల",
+        "reports": "ఫీల్డ్ నివేదికలు"
+    },
+    "dashboard": {
+        "title": "ఫామ్ అవలోకనం",
+        "kpi": {
+            "humidity": "తేమ",
+            "temp": "ఉష్ణోగ్రత",
+            "soil_moisture": "మట్టి తేమ",
+            "water_tank": "నీటి ట్యాంక్",
+            "system_status": "సిస్టమ్ స్థితి"
+        },
+        "vitality": {
+            "good": "మంచిది",
+            "warning": "హెచ్చరిక",
+            "critical": "క్లిష్టమైనది"
+        }
+    },
+    "irrigation": {
+        "control": {
+            "title": "నీటిపారుదల నిర్వహణ",
+            "auto_mode": "స్వయంప్రతిపత్తి మోడ్",
+            "auto_protocols": "AI ప్రోటోకాల్స్",
+            "btn_engage": "ప్రారంభించు",
+            "btn_terminate": "ముగించు",
+            "active_flow": "క్రియాశీల ప్రవాహం",
+            "standby": "స్టాండ్‌బైలో"
+        }
+    }
+}

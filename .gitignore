@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+
+# Keep model artifacts local by default
+models/*
+!models/.gitkeep
+train/data/*
+!train/data/.gitkeep
