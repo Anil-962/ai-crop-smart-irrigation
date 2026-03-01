@@ -84,3 +84,5 @@ def create_app() -> Flask:
     app.register_blueprint(sensors_bp, url_prefix="/api/sensors")
     
     return app
+
+app = create_app()
