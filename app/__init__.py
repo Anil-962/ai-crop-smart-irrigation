@@ -16,7 +16,7 @@ from app.routes.irrigation import irrigation_bp
 from app.routes.alerts import alerts_bp
 from app.utils.response import error_response
 
-socketio = SocketIO(cors_allowed_origins="*")
+socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 
 def setup_logging(app):
     """Configure logging for the application."""

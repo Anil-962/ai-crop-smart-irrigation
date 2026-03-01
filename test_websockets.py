@@ -17,14 +17,12 @@ conn.execute("INSERT INTO zones (id, name, area_size, crop_type, irrigation_mode
 conn.commit()
 conn.close()
 
-# Start Flask in background to test the client
-from run import app, socketio as server_socketio
+# Note: Internal server threads (socketio.run) are disabled for production compliance.
+# To test this client, run the app using Gunicorn in a separate terminal:
+# gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 -b 127.0.0.1:5000 run:app
 
-def run_server():
-    server_socketio.run(app, host='127.0.0.1', port=5000, use_reloader=False, log_output=False)
-
-server_thread = threading.Thread(target=run_server, daemon=True)
-server_thread.start()
+print("WebSocket test script started in client-only mode.")
+print("Ensure the main app is running via Gunicorn on port 5000 before proceeding.")
 
 time.sleep(2) # Wait for server to start
 
