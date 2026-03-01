@@ -5,16 +5,9 @@ from flask import Flask, render_template
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from app.config import config_map
-from app.routes.auth import auth_bp
-from app.routes.decision import decision_bp
-from app.routes.health import health_bp
-from app.routes.predict import predict_bp
-from app.routes.dashboard import dashboard_bp
-from app.routes.analytics import analytics_bp
-from app.routes.irrigation import irrigation_bp
-from app.routes.alerts import alerts_bp
-from app.utils.response import error_response
+from .config import config_map
+from .routes.auth import auth_bp
+from .utils.response import error_response
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 
@@ -73,22 +66,10 @@ def create_app() -> Flask:
         app.logger.error(f"Internal Server Error: {str(e)}")
         return error_response("Internal server error", 500)
 
-    from app.routes import main_bp
+    from .routes import main_bp
     app.register_blueprint(main_bp)
-
-    from app.routes.zones import zones_bp
-    from app.routes.sensors import sensors_bp
     
-    app.register_blueprint(health_bp, url_prefix="/api/health")
-    app.register_blueprint(predict_bp, url_prefix="/api/predict")
-    app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
-    app.register_blueprint(analytics_bp, url_prefix="/api/analytics")
-    app.register_blueprint(decision_bp, url_prefix="/api/decision")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(irrigation_bp, url_prefix="/api/irrigation")
-    app.register_blueprint(alerts_bp, url_prefix="/api/alerts")
-    app.register_blueprint(zones_bp, url_prefix="/api/zones")
-    app.register_blueprint(sensors_bp, url_prefix="/api/sensors")
     
     print("App factory initialized successfully")
     return app
