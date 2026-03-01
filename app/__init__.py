@@ -73,23 +73,9 @@ def create_app() -> Flask:
         app.logger.error(f"Internal Server Error: {str(e)}")
         return error_response("Internal server error", 500)
 
-    @app.route("/")
-    def home():
-        return render_template("index.html")
+    from app.routes import main_bp
+    app.register_blueprint(main_bp)
 
-    @app.route("/health")
-    def health():
-        return {"status": "ok"}, 200
-
-    try:
-        from app.utils.db import init_db
-        init_db()
-    except Exception as e:
-        print(f"CRITICAL ERROR: Database initialization failed: {e}")
-        app.logger.critical(f"Database initialization failed: {e}")
-    
-    socketio.init_app(app)
-    
     from app.routes.zones import zones_bp
     from app.routes.sensors import sensors_bp
     
@@ -104,11 +90,5 @@ def create_app() -> Flask:
     app.register_blueprint(zones_bp, url_prefix="/api/zones")
     app.register_blueprint(sensors_bp, url_prefix="/api/sensors")
     
-    @app.route("/<path:path>")
-    def serve_spa(path):
-        if path.startswith("api/"):
-            return error_response("Endpoint not found", 404)
-        return render_template("index.html")
-
     print("App factory initialized successfully")
     return app
