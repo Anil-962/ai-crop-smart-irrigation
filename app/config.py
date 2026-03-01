@@ -17,9 +17,13 @@ class Config:
     WEATHER_API_BASE_URL = os.getenv("WEATHER_API_BASE_URL", "https://api.open-meteo.com/v1/forecast")
     WEATHER_TIMEOUT_SECONDS = float(os.getenv("WEATHER_TIMEOUT_SECONDS", "5"))
 
-    # Database Configuration
-    _database_url = os.getenv("DATABASE_URL", "sqlite:///data/sensor_readings.db")
-    if _database_url and _database_url.startswith("postgres://"):
+    # Database Configuration with safe fallback
+    _database_url = os.getenv("DATABASE_URL")
+    if not _database_url:
+        # Fallback to local SQLite if DATABASE_URL is missing
+        _database_url = "sqlite:///data/sensor_readings.db"
+    elif _database_url.startswith("postgres://"):
+        # Fix Railway/Heroku style postgres URLs
         _database_url = _database_url.replace("postgres://", "postgresql://", 1)
     
     DATABASE_URL = _database_url
@@ -36,6 +40,7 @@ class ProductionConfig(Config):
     """Production configuration."""
     DEBUG = False
     TESTING = False
+    ENV = "production"
     
     # Security headers
     SESSION_COOKIE_SECURE = True

@@ -20,6 +20,6 @@ COPY . .
 # Expose port 8080 (clean and standard for many cloud platforms)
 EXPOSE 8080
 
-# Run the app using gunicorn
-# Bind to the dynamic PORT provided by platforms like Railway
-CMD ["sh", "-c", "gunicorn -w 4 -b 0.0.0.0:$PORT app:app"]
+# Run the app using gunicorn with gevent WebSocket worker
+# Using 1 worker for WebSocket compatibility and binding to dynamic $PORT
+CMD ["sh", "-c", "gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 -b 0.0.0.0:$PORT run:app"]

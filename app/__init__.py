@@ -42,6 +42,14 @@ def create_app() -> Flask:
     
     if not app.debug:
         setup_logging(app)
+        
+        # Log warnings for missing critical production settings
+        if not os.getenv("DATABASE_URL"):
+            app.logger.warning("DATABASE_URL not found. Falling back to SQLite.")
+        if os.getenv("SECRET_KEY", "default-secure-key-change-me") == "default-secure-key-change-me":
+            app.logger.warning("SECRET_KEY is using the default value. Please set a secure SECRET_KEY in production.")
+        if os.getenv("JWT_SECRET_KEY", "default-jwt-key") == "default-jwt-key":
+             app.logger.warning("JWT_SECRET_KEY is using the default value. Please set a secure JWT_SECRET_KEY in production.")
     
     # Enable CORS for specified origins
     CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}}, supports_credentials=True)
@@ -64,8 +72,20 @@ def create_app() -> Flask:
         app.logger.error(f"Internal Server Error: {str(e)}")
         return error_response("Internal server error", 500)
 
-    from app.utils.db import init_db
-    init_db()
+    @app.route("/")
+    def root():
+        return {"status": "AgriPulse running"}, 200
+
+    @app.route("/health")
+    def health():
+        return {"status": "ok"}, 200
+
+    try:
+        from app.utils.db import init_db
+        init_db()
+    except Exception as e:
+        print(f"CRITICAL ERROR: Database initialization failed: {e}")
+        app.logger.critical(f"Database initialization failed: {e}")
     
     socketio.init_app(app)
     
@@ -83,6 +103,5 @@ def create_app() -> Flask:
     app.register_blueprint(zones_bp, url_prefix="/api/zones")
     app.register_blueprint(sensors_bp, url_prefix="/api/sensors")
     
+    print("App factory initialized successfully")
     return app
-
-app = create_app()
