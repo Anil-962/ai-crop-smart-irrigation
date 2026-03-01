@@ -1,0 +1,1 @@
+import{j as e}from"./index-1bdFUNPI.js";import{B as r,C as t,a as s,b as i,f as l,p as n,d as o,e as p}from"./index-BXZu1soH.js";t.register(s,i,l,n,o,p);function m(a){return e.jsx(r,{...a})}export{m as default};

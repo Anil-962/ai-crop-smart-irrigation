@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
@@ -38,6 +38,7 @@ def create_app() -> Flask:
     config_class = config_map.get(env, config_map["default"])
     
     app = Flask(__name__)
+    
     app.config.from_object(config_class)
     
     if not app.debug:
@@ -73,8 +74,8 @@ def create_app() -> Flask:
         return error_response("Internal server error", 500)
 
     @app.route("/")
-    def root():
-        return {"status": "AgriPulse running"}, 200
+    def home():
+        return render_template("index.html")
 
     @app.route("/health")
     def health():
@@ -103,5 +104,11 @@ def create_app() -> Flask:
     app.register_blueprint(zones_bp, url_prefix="/api/zones")
     app.register_blueprint(sensors_bp, url_prefix="/api/sensors")
     
+    @app.route("/<path:path>")
+    def serve_spa(path):
+        if path.startswith("api/"):
+            return error_response("Endpoint not found", 404)
+        return render_template("index.html")
+
     print("App factory initialized successfully")
     return app
