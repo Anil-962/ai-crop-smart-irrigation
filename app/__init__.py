@@ -6,10 +6,17 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 
 from .config import config_map
+from .routes.alerts import alerts_bp
+from .routes.analytics import analytics_bp
 from .routes.auth import auth_bp
+from .routes.dashboard import dashboard_bp
+from .routes.health import health_bp
+from .routes.irrigation import irrigation_bp
+from .routes.predict import predict_bp
+from .utils.db import init_db
 from .utils.response import error_response
 
-socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
+socketio = SocketIO(cors_allowed_origins="*")
 
 def setup_logging(app):
     """Configure logging for the application."""
@@ -33,6 +40,9 @@ def create_app() -> Flask:
     app = Flask(__name__)
     
     app.config.from_object(config_class)
+
+    # Ensure SQLite schema exists before any API requests hit service queries.
+    init_db()
     
     if not app.debug:
         setup_logging(app)
@@ -70,6 +80,14 @@ def create_app() -> Flask:
     app.register_blueprint(main_bp)
     
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    app.register_blueprint(health_bp, url_prefix="/api")
+    app.register_blueprint(dashboard_bp, url_prefix="/api")
+    app.register_blueprint(analytics_bp, url_prefix="/api")
+    app.register_blueprint(alerts_bp, url_prefix="/api")
+    app.register_blueprint(predict_bp, url_prefix="/api")
+    app.register_blueprint(irrigation_bp, url_prefix="/api")
+    
+    socketio.init_app(app)
     
     print("App factory initialized successfully")
     return app

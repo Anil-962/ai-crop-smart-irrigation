@@ -50,6 +50,22 @@ def init_db():
         )
     ''')
 
+    # Seed baseline zones so dashboard/control APIs work on first run.
+    default_zones = [
+        (1, "Zone 1 (North)", 120.0, "Tomato", "auto"),
+        (2, "Zone 2 (East)", 140.0, "Potato", "manual"),
+        (3, "Zone 3 (South)", 160.0, "Rice", "auto"),
+        (4, "Zone 4 (West)", 130.0, "Wheat", "manual"),
+        (5, "Zone 5 (Center)", 150.0, "Maize", "auto"),
+    ]
+    cursor.executemany(
+        '''
+        INSERT OR IGNORE INTO zones (id, name, area_size, crop_type, irrigation_mode)
+        VALUES (?, ?, ?, ?, ?)
+        ''',
+        default_zones,
+    )
+
     # Create the sensor_readings table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sensor_readings (
