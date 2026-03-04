@@ -22,8 +22,9 @@ def predict_disease() -> Any:
             model_path=current_app.config["DISEASE_MODEL_PATH"],
             labels_path=current_app.config["DISEASE_LABELS_PATH"],
         )
-        result = predictor.predict(image_bytes)
-        return success_response(result, 200)
+        prediction = predictor.predict(image_bytes)
+        print("Prediction result:", prediction)
+        return success_response(prediction, 200)
     except ValidationError as exc:
         return error_response(str(exc), 400)
     except Exception as exc:
@@ -42,4 +43,3 @@ def predict_irrigation() -> Any:
         return error_response(str(exc), 400)
     except Exception as exc:
         return error_response(f"Irrigation prediction failed: {exc}", 500)
-

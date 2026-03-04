@@ -35,6 +35,7 @@ class DiseasePredictor:
         self.model: Any = None
         self.labels = DISEASE_LABELS
         self.backend = "mobilenetv2_stub"
+        self.input_size = (224, 224)
         self._load_labels_if_available()
         self._load_model_if_available()
 
@@ -57,6 +58,10 @@ class DiseasePredictor:
             import tensorflow as tf  # type: ignore
 
             self.model = tf.keras.models.load_model(self.model_path)
+            shape = getattr(self.model, "input_shape", None)
+            # Typical shape: (None, H, W, 3)
+            if shape and len(shape) >= 4 and shape[1] and shape[2]:
+                self.input_size = (int(shape[1]), int(shape[2]))
             self.backend = "mobilenetv2_loaded"
         except Exception:
             self.model = None
@@ -64,11 +69,25 @@ class DiseasePredictor:
 
     @staticmethod
     def _read_image(image_bytes: bytes) -> Image.Image:
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        return image
+        return Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    @staticmethod
+    def _preprocess_image(image: Image.Image) -> np.ndarray:
+        """
+        Convert image to a model-ready numpy tensor.
+        Shape: (1, H, W, 3), dtype float32.
+        Keep pixel scale at [0, 255] because training model includes
+        mobilenet_v2.preprocess_input inside the graph.
+        """
+        # Placeholder; resized with instance input size in predict().
+        resized = image
+        arr = np.asarray(resized, dtype=np.float32)
+        if arr.ndim != 3 or arr.shape[2] != 3:
+            raise ValueError("Invalid image shape after preprocessing.")
+        return np.expand_dims(arr, axis=0)
 
     def _predict_stub(self, image: Image.Image) -> tuple[str, float]:
-        arr = np.asarray(image.resize((224, 224)), dtype=np.float32)
+        arr = np.asarray(image.resize(self.input_size), dtype=np.float32)
         red_mean = float(arr[:, :, 0].mean())
         green_mean = float(arr[:, :, 1].mean())
         blue_mean = float(arr[:, :, 2].mean())
@@ -88,9 +107,8 @@ class DiseasePredictor:
             return "Powdery Mildew", 0.62
         return "Early Blight", 0.65
 
-    def _predict_model(self, image: Image.Image) -> tuple[str, float]:
-        arr = np.asarray(image.resize((224, 224)), dtype=np.float32) / 255.0
-        batch = np.expand_dims(arr, axis=0)
+    def _predict_model(self, batch: np.ndarray) -> tuple[str, float]:
+        # Fresh inference for every request image.
         probs = self.model.predict(batch, verbose=0)[0]
         idx = int(np.argmax(probs))
         if idx >= len(self.labels):
@@ -102,9 +120,11 @@ class DiseasePredictor:
             raise ValueError("Empty image payload.")
 
         image = self._read_image(image_bytes)
+        resized = image.resize(self.input_size)
+        batch = self._preprocess_image(resized)
 
         if self.model is not None:
-            disease_name, confidence = self._predict_model(image)
+            disease_name, confidence = self._predict_model(batch)
         else:
             disease_name, confidence = self._predict_stub(image)
 

@@ -941,7 +941,11 @@ function App() {
   // Disease Detection State 
   const [diseaseResult, setDiseaseResult] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [scannerLoading, setScannerLoading] = useState(false);
   const videoRef = useRef(null);
+  const scanRequestIdRef = useRef(0);
+  const scanningIntervalRef = useRef(null);
+  const scannerRequestInFlightRef = useRef(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState(null);
 
@@ -1176,14 +1180,103 @@ function App() {
     localStorage.removeItem('agroguard_token');
   };
 
+  const runDiseasePrediction = useCallback(async (base64Image, previewSrc) => {
+    const requestId = ++scanRequestIdRef.current;
+    setScannerLoading(true);
+    setDiseaseResult(null);
+    if (previewSrc) {
+      setPreviewImage(previewSrc);
+    }
+
+    try {
+      const result = await diseaseApi.predict(base64Image);
+      if (requestId !== scanRequestIdRef.current) return;
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+      setDiseaseResult(result?.data ?? result);
+    } catch (err) {
+      if (requestId !== scanRequestIdRef.current) return;
+      console.error("Disease detection failed", err);
+      alert(`Analysis Failed: ${err.message}`);
+      setDiseaseResult(null);
+    } finally {
+      if (requestId === scanRequestIdRef.current) {
+        setScannerLoading(false);
+      }
+    }
+  }, []);
+
+  const captureFrameFromVideo = useCallback(() => {
+    const videoEl = videoRef.current;
+    if (!videoEl || !videoEl.videoWidth || !videoEl.videoHeight) {
+      return null;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = videoEl.videoWidth;
+    canvas.height = videoEl.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return null;
+    }
+
+    ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+    const b64Full = canvas.toDataURL('image/jpeg', 0.8);
+    return {
+      full: b64Full,
+      data: b64Full.split(',')[1]
+    };
+  }, []);
+
+  const stopRealTimeScan = useCallback(() => {
+    if (scanningIntervalRef.current) {
+      clearInterval(scanningIntervalRef.current);
+      scanningIntervalRef.current = null;
+    }
+    scannerRequestInFlightRef.current = false;
+  }, []);
+
+  const startRealTimeScan = useCallback(() => {
+    if (scanningIntervalRef.current) {
+      return;
+    }
+
+    const tick = async () => {
+      if (!isCameraActive || scannerRequestInFlightRef.current) {
+        return;
+      }
+
+      const frame = captureFrameFromVideo();
+      if (!frame?.data) {
+        return;
+      }
+
+      scannerRequestInFlightRef.current = true;
+      try {
+        await runDiseasePrediction(frame.data, null);
+      } finally {
+        scannerRequestInFlightRef.current = false;
+      }
+    };
+
+    void tick();
+    scanningIntervalRef.current = setInterval(() => {
+      void tick();
+    }, 1000);
+  }, [captureFrameFromVideo, isCameraActive, runDiseasePrediction]);
+
   const stopCamera = useCallback(() => {
+    stopRealTimeScan();
+    scanRequestIdRef.current += 1;
+
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks();
       tracks.forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
     setIsCameraActive(false);
-  }, []);
+  }, [stopRealTimeScan]);
 
   const startCamera = async () => {
     setCameraError(null);
@@ -1206,40 +1299,33 @@ function App() {
       if (err.name === 'NotReadableError' || err.name === 'TrackStartError') errorMsg = "Camera is currently in use by another application.";
       setCameraError(errorMsg);
       setIsCameraActive(false);
+      stopRealTimeScan();
     }
   };
 
-  const captureImage = () => {
-    if (videoRef.current) {
-      setLoading(true);
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      const b64Full = canvas.toDataURL('image/jpeg', 0.8);
-
-      setPreviewImage(b64Full);
-      stopCamera(); // close stream after capture
-
-      const b64Data = b64Full.split(',')[1];
-      diseaseApi.predict(b64Data)
-        .then(result => {
-          if (result.error) throw new Error(result.error);
-          setDiseaseResult(result?.data ?? result);
-        })
-        .catch(err => {
-          console.error("Disease detection failed", err);
-          alert(`Analysis Failed: ${err.message}`);
-          setDiseaseResult(null);
-        })
-        .finally(() => setLoading(false));
+  useEffect(() => {
+    if (isCameraActive) {
+      startRealTimeScan();
+    } else {
+      stopRealTimeScan();
     }
+  }, [isCameraActive, startRealTimeScan, stopRealTimeScan]);
+
+  useEffect(() => {
+    return () => stopRealTimeScan();
+  }, [stopRealTimeScan]);
+
+  const captureImage = () => {
+    const frame = captureFrameFromVideo();
+    if (!frame?.data) return;
+    runDiseasePrediction(frame.data, null);
   };
 
   useEffect(() => {
     // Cleanup camera when switching tabs
     if (activeTab !== 'disease') {
+      scanRequestIdRef.current += 1;
+      setScannerLoading(false);
       stopCamera();
     }
   }, [activeTab, stopCamera]);
@@ -1248,26 +1334,14 @@ function App() {
     const file = e.target.files[0];
     if (!file) return;
 
-    setLoading(true);
+    setDiseaseResult(null);
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64String = reader.result.split(',')[1];
-      setPreviewImage(reader.result);
-      try {
-        const result = await diseaseApi.predict(base64String);
-        if (result.error) {
-          throw new Error(result.error);
-        }
-        setDiseaseResult(result?.data ?? result);
-      } catch (error) {
-        console.error("Disease detection failed", error);
-        alert(`Analysis Failed: ${error.message}`);
-        setDiseaseResult(null);
-      } finally {
-        setLoading(false);
-      }
+      await runDiseasePrediction(base64String, reader.result);
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   const handleIrrigationSubmit = async () => {
@@ -1829,7 +1903,13 @@ function App() {
                           <div className="relative group_img max-w-lg w-full">
                             <img src={previewImage} className="w-full rounded-2xl shadow-sm border border-border" alt="Leaf Preview" />
                             <button
-                              onClick={() => { setPreviewImage(null); setDiseaseResult(null); startCamera(); }}
+                              onClick={() => {
+                                scanRequestIdRef.current += 1;
+                                setScannerLoading(false);
+                                setPreviewImage(null);
+                                setDiseaseResult(null);
+                                startCamera();
+                              }}
                               className="absolute -top-3 -right-3 bg-red-600 text-white p-2 rounded-xl shadow-sm hover:bg-red-700 transition-colors"
                             >
                               <X size={16} />
@@ -1847,10 +1927,10 @@ function App() {
                           />
                           <button
                             onClick={captureImage}
-                            disabled={loading}
+                            disabled={scannerLoading}
                             className="absolute bottom-10 bg-primary text-white p-4 rounded-full hover:bg-primaryHover transition-transform shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50"
                           >
-                            {loading ? <Loader2 className="animate-spin" size={24} /> : <Camera size={24} />}
+                            {scannerLoading ? <Loader2 className="animate-spin" size={24} /> : <Camera size={24} />}
                           </button>
                           <button
                             onClick={stopCamera}
@@ -1884,9 +1964,9 @@ function App() {
                             </button>
 
                             <label className="bg-background text-textPrimary border border-border px-8 py-3.5 rounded-xl font-bold text-sm cursor-pointer hover:border-primary transition-all shadow-sm flex items-center justify-center gap-2 w-full">
-                              {loading ? <Loader2 className="animate-spin" size={18} /> : <ArrowRight size={18} />}
-                              {loading ? t('scanner.btn_analyzing') : "Upload from Device"}
-                              <input type="file" className="hidden" accept="image/*" capture="environment" onChange={handleImageUpload} disabled={loading} />
+                              {scannerLoading ? <Loader2 className="animate-spin" size={18} /> : <ArrowRight size={18} />}
+                              {scannerLoading ? t('scanner.btn_analyzing') : "Upload from Device"}
+                              <input type="file" className="hidden" accept="image/*" capture="environment" onChange={handleImageUpload} disabled={scannerLoading} />
                             </label>
                           </div>
                         </div>
@@ -1900,7 +1980,14 @@ function App() {
                           {t('scanner.output')}
                         </div>
 
-                        {diseaseResult ? (
+                        {scannerLoading ? (
+                          <div className="flex-1 flex flex-col items-center justify-center text-center py-20">
+                            <Loader2 size={40} className="mb-4 text-textSecondary animate-spin" />
+                            <p className="text-sm font-bold text-textSecondary uppercase tracking-widest">
+                              {t('scanner.btn_analyzing') || 'Analyzing...'}
+                            </p>
+                          </div>
+                        ) : diseaseResult ? (
                           <div className="space-y-8 flex-1">
                             <div>
                               <div className="flex items-center justify-between mb-2">
